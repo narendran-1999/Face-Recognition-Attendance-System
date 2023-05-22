@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>frAttendance</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{{ url_for('send_static', path='img/favicon.jpg') }}" rel="icon">
+  <link href="{{ url_for('send_static', path='img/apple-touch-icon.jpg') }}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{{ url_for('send_static', path='vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('send_static', path='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('send_static', path='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('send_static', path='vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('send_static', path='vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('send_static', path='vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{{ url_for('send_static', path='css/style.css') }}" rel="stylesheet">
+
+  <style>
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 30%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 5;
+    }
+
+    .table-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 10px;
+      width: 80%;
+      height: 80%;
+      overflow: auto;
+    }
+  </style>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+
+  <!-- ======= Mobile nav toggle button ======= -->
+  <i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="d-flex flex-column">
+
+      <div class="profile">
+        <img src="{{ url_for('send_static', path='img/profile-img.jpg') }}" alt="" class="img-fluid rounded-circle">
+      </div>
+
+      <nav id="navbar" class="nav-menu navbar">
+        <ul>
+          <li><a href="#" class="nav-link scrollto"><i class="bx bx-home"></i> <span>Home Page</span></a></li>
+          <li><a href="{{ url_for('collect') }}" class="nav-link scrollto"><i class="bx bx-user"></i> <span>Face Collection</span></a></li>
+          <li><a href="{{ url_for('attendance') }}" class="nav-link scrollto active"><i class="bx bx-video-recording"></i> <span>Attendance Feed</span></a></li>
+          <li><a href="{{ url_for('archive') }}" class="nav-link scrollto"><i class="bx bx-file-blank"></i> <span>Records</span></a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+    </div>
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
+    <div class="hero-container" data-aos="fade-in">
+        <img id="video_feed" height="480" width="640"><br>
+
+        <center  style="margin: 10px;">
+            <button id="start_btn" type="button" class="btn btn-success">BEGIN</button>
+            <button id="stop_btn" type="button" class="btn btn-danger">STOP</button>
+            <button id="show-overlay" type="button" class="btn btn-warning">Show CSV</button>
+        </center>
+    </div>
+
+    <div class="overlay">
+      <div class="table-container">
+        <table id="data-table" class="table table-bordered table-dark">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Identity</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function() {
+        $("#show-overlay").click(function() {
+          $(".overlay").toggle();
+          if ($(".overlay").is(":visible")) {
+            $.ajax({
+              url: "/data",
+              success: function(data) {
+                for (var i = 0; i < data.length; i++) {
+                  var row = data[i];
+                  var rowHTML = "<tr>";
+                  for (var j = 0; j < row.length; j++) {
+                    rowHTML += "<td>" + row[j] + "</td>";
+                  }
+                  rowHTML += "</tr>";
+                  $("#data-table tbody").append(rowHTML);
+                }
+              }
+            });
+          }
+        });
+      });
+    </script>
+  </section><!-- End Hero -->
+
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="container">
+      <div class="credits">
+        <b>Narendran T R</b> (21MX114)
+      </div>
+    </div>
+  </footer><!-- End  Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <script>
+    $(document).ready(function() {
+      $("#stop_btn").hide();
+      
+      $("#start_btn").click(function() {
+        $("#video_feed").attr("src", "{{ url_for('video_feed') }}");
+        $("#start_btn").hide();
+        $("#stop_btn").show();
+      });
+
+      $("#stop_btn").click(function() {
+        $.ajax({
+            type: "POST",
+            url: "/stop_feed",
+            success: function() {
+              $("#video_feed").removeAttr("src");
+            }
+          });
+        //$("#video_feed").attr("src", "");
+        $("#stop_btn").hide();
+        $("#start_btn").show();
+      });
+    });
+  </script>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ url_for('send_static', path='vendor/purecounter/purecounter_vanilla.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/aos/aos.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/glightbox/js/glightbox.min.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/typed.js/typed.min.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/waypoints/noframework.waypoints.js') }}"></script>
+  <script src="{{ url_for('send_static', path='vendor/php-email-form/validate.js') }}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{{ url_for('send_static', path='js/main.js') }}"></script>
+
+</body>
+
+</html>
