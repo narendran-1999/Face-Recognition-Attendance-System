@@ -1,3 +1,3 @@
-## Delete the files specific to use case & make your own later
+## Files specific to use case:
 **.h5 file** - Face recognition model trained from colab
 **.csv file** - Names for each face
