@@ -11,3 +11,4 @@
 #### Colab Notebooks  
 **embedding-trainer.ipynb** - Generate trained face-recognition model (.h5 file) from cropped faces  
 **vid2vid.ipynb** - Testing script - Input: Any video -> Output: Annotated video (squares on detected faces)  
+*(Training dataset and input video to be input from Google Drive)*
